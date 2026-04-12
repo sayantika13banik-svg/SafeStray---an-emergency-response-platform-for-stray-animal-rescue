@@ -1,7 +1,32 @@
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
+
+const app = express();
+
+mongoose.set("bufferCommands", false);
+
+
+const MONGO_URI = "mongodb+srv://sayantika13banik_db_user:Ts13%401989@cluster0.s8vypth.mongodb.net/safestray?retryWrites=true&w=majority";
+
+
+async function connectDB() {
+  try {
+    await mongoose.connect(MONGO_URI);
+    console.log("MongoDB connected ✅");
+  } catch (err) {
+    console.error("MongoDB FAILED ❌", err);
+    process.exit(1);
+  }
+}
+
+
+app.use(cors());
+app.use(express.json());
+
+
 const CaseSchema = new mongoose.Schema({
+  animal: String,
   description: String,
   lat: Number,
   lng: Number,
@@ -9,37 +34,60 @@ const CaseSchema = new mongoose.Schema({
 });
 
 const Case = mongoose.model("Case", CaseSchema);
-const app = express();
-mongoose.connect("mongodb+srv://sayantika13banik_db_user:Ts13%401989@cluster0.s8vypth.mongodb.net/safestray?retryWrites=true&w=majority")
-  .then(() => console.log("MongoDB connected ✅"))
-  .catch((err) => console.log(err));
 
-app.use(cors());
-app.use(express.json());
 
-// test route
 app.get("/", (req, res) => {
   res.send("Backend running 🚀");
 });
 
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
-});
-let cases = [];
 
-// POST - add case
 app.post("/report", async (req, res) => {
-  const newCase = new Case({
-    ...req.body,
-    status: "Pending",
-  });
+  try {
+    const { lat, lng } = req.body;
 
-  await newCase.save();
-  res.json(newCase);
+
+    if (!lat || !lng) {
+      return res.status(400).json({
+        error: "Location is required"
+      });
+    }
+
+    const newCase = new Case({
+      ...req.body,
+      status: "Pending",
+    });
+
+    await newCase.save();
+    res.json(newCase);
+
+  } catch (err) {
+    console.error("POST ERROR:", err);
+    res.status(500).json({ error: "Error saving report" });
+  }
 });
 
-// GET - all cases
+
 app.get("/cases", async (req, res) => {
-  const cases = await Case.find();
-  res.json(cases);
+  try {
+    console.log("DB State:", mongoose.connection.readyState); // debug
+
+    const cases = await Case.find();
+    res.json(cases);
+
+  } catch (err) {
+    console.error("GET ERROR:", err);
+    res.status(500).json({ error: "Error fetching cases" });
+  }
+});
+
+
+connectDB().then(() => {
+  app.listen(5000, () => {
+    console.log("Server running on port 5000 🚀");
+  });
+});
+
+
+mongoose.connection.on("error", err => {
+  console.error("MongoDB runtime error:", err);
 });
