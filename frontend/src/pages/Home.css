@@ -213,3 +213,15 @@ textarea.input {
   font-size: 1.8rem;
   color: var(--primary);
 }
+/* ERROR MESSAGE */
+.error-text {
+  color: #ff6b6b;
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+.file-link {
+  color: #9d4edd;
+  cursor: pointer;
+  text-decoration: underline;
+}

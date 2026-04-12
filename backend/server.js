@@ -1,28 +1,42 @@
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const multer = require("multer");
+const path = require("path");
 
 const app = express();
 
 mongoose.set("bufferCommands", false);
 
-
 const MONGO_URI = "mongodb+srv://sayantika13banik_db_user:Ts13%401989@cluster0.s8vypth.mongodb.net/safestray?retryWrites=true&w=majority";
 
-
-async function connectDB() {
-  try {
-    await mongoose.connect(MONGO_URI);
-    console.log("MongoDB connected ✅");
-  } catch (err) {
-    console.error("MongoDB FAILED ❌", err);
-    process.exit(1);
-  }
-}
-
+mongoose.connect(MONGO_URI)
+  .then(() => console.log("MongoDB connected "))
+  .catch(err => console.log(err));
 
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static("uploads"));
+
+
+const fileFilter = (req, file, cb) => {
+  const allowed = /jpg|jpeg|png|webp/;
+  const ext = allowed.test(path.extname(file.originalname).toLowerCase());
+  const mime = allowed.test(file.mimetype);
+
+  if (ext && mime) cb(null, true);
+  else cb("Only images allowed !", false);
+};
+
+
+const storage = multer.diskStorage({
+  destination: "uploads/",
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage, fileFilter });
 
 
 const CaseSchema = new mongoose.Schema({
@@ -30,64 +44,60 @@ const CaseSchema = new mongoose.Schema({
   description: String,
   lat: Number,
   lng: Number,
-  status: String,
+  image: String,
+  status: String
 });
 
 const Case = mongoose.model("Case", CaseSchema);
 
 
 app.get("/", (req, res) => {
-  res.send("Backend running 🚀");
+  res.send("Backend running ");
 });
-
 
 app.post("/report", async (req, res) => {
   try {
-    const { lat, lng } = req.body;
-
+    const { lat, lng, animal, image } = req.body;
 
     if (!lat || !lng) {
-      return res.status(400).json({
-        error: "Location is required"
-      });
+      return res.status(400).json({ error: "Location required" });
+    }
+
+    if (!animal) {
+      return res.status(400).json({ error: "Animal required" });
     }
 
     const newCase = new Case({
-      ...req.body,
-      status: "Pending",
+      animal,
+      description: req.body.description,
+      lat,
+      lng,
+      image, 
+      status: "Pending"
     });
 
     await newCase.save();
     res.json(newCase);
 
   } catch (err) {
-    console.error("POST ERROR:", err);
-    res.status(500).json({ error: "Error saving report" });
+    console.error(err);
+    res.status(500).json({ error: err.toString() });
   }
 });
-
-
-app.get("/cases", async (req, res) => {
-  try {
-    console.log("DB State:", mongoose.connection.readyState); // debug
-
-    const cases = await Case.find();
-    res.json(cases);
-
-  } catch (err) {
-    console.error("GET ERROR:", err);
-    res.status(500).json({ error: "Error fetching cases" });
+app.post("/upload", upload.single("image"), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: "No file uploaded" });
   }
-});
 
-
-connectDB().then(() => {
-  app.listen(5000, () => {
-    console.log("Server running on port 5000 🚀");
+  res.json({
+    filename: req.file.filename
   });
 });
+app.get("/cases", async (req, res) => {
+  const cases = await Case.find();
+  res.json(cases);
+});
 
-
-mongoose.connection.on("error", err => {
-  console.error("MongoDB runtime error:", err);
+app.listen(5000, () => {
+  console.log("Server running on port 5000 🚀");
 });

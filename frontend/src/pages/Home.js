@@ -45,7 +45,7 @@ function Home() {
             ref={boxRef}
             className={`inner-box ${visible ? "visible" : ""}`}
           >
-            <h1>🐾 SafeStray</h1>
+            <h1>SafeStray</h1>
             <p className="subtitle">
               Emergency Animal Rescue Platform
             </p>
@@ -70,7 +70,7 @@ function Home() {
 
 
         <div className="extra-section">
-          <h2>🐾 About SafeStray</h2>
+          <h2>About SafeStray</h2>
           <p>
             SafeStray is a platform designed to help injured and stray animals
             get immediate assistance. By connecting people with nearby rescuers

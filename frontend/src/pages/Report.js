@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./Home.css";
 
 function Report() {
@@ -6,27 +6,86 @@ function Report() {
     animal: "",
     description: "",
     lat: "",
-    lng: ""
+    lng: "",
+    image: ""
   });
 
-  const getLocation = () => {
-    navigator.geolocation.getCurrentPosition((pos) => {
-      setForm({
-        ...form,
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude
-      });
-      alert("Location captured!");
-    });
-  };
+  const [error, setError] = useState("");
+  const [progress, setProgress] = useState(0);
+  const [uploading, setUploading] = useState(false);
+  const [fileName, setFileName] = useState("");
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setForm((prev) => ({
+          ...prev,
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude
+        }));
+      },
+      () => setError("Location required !")
+    );
+  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+
+  const handleImage = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(true);
+    setFileName(file.name);
+
+    const data = new FormData();
+    data.append("image", file);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "http://localhost:5000/upload"); 
+
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) {
+        setProgress(Math.round((e.loaded / e.total) * 100));
+      }
+    };
+
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        const res = JSON.parse(xhr.responseText);
+
+        setForm((prev) => ({
+          ...prev,
+          image: res.filename 
+        }));
+
+        setUploading(false);
+        setProgress(0);
+      } else {
+        setError("Upload failed !");
+        setUploading(false);
+      }
+    };
+
+    xhr.send(data);
+  };
+
+
   const handleSubmit = async () => {
+    if (uploading) {
+      setError("Wait for image upload to finish");
+      return;
+    }
+
+    if (!form.animal.trim()) {
+      setError("Animal required");
+      return;
+    }
+
     if (!form.lat || !form.lng) {
-      alert("⚠️ Please get your location first");
+      setError("Location required");
       return;
     }
 
@@ -40,17 +99,10 @@ function Report() {
       });
 
       alert("Report submitted!");
+      setError("");
 
-      setForm({
-        animal: "",
-        description: "",
-        lat: "",
-        lng: ""
-      });
-
-    } catch (err) {
-      console.error(err);
-      alert("Error submitting report");
+    } catch {
+      setError("Submit failed !");
     }
   };
 
@@ -60,14 +112,15 @@ function Report() {
         <div className="content-card">
           <div className="inner-box visible">
 
-            <h1>🐾 Report a Stray</h1>
+            <h1>Report a Stray</h1>
             <p className="subtitle">Help animals in need</p>
+
+            {error && <p className="error-text">{error}</p>}
 
             <input
               className="input"
               name="animal"
               placeholder="Animal type"
-              value={form.animal}
               onChange={handleChange}
             />
 
@@ -75,26 +128,61 @@ function Report() {
               className="input"
               name="description"
               placeholder="Description"
-              value={form.description}
               onChange={handleChange}
             />
 
-            <button className="btn" onClick={getLocation}>
-               Get My Location
-            </button>
+
+            <label className="btn">
+              📸 Upload Photo
+              <input type="file" accept="image/*" onChange={handleImage} hidden />
+            </label>
+
+
+            {fileName && (
+  <p
+    className="file-link"
+    style={{
+      cursor: "pointer",
+      textDecoration: "underline"
+    }}
+    onClick={() => {
+      if (form.image) {
+        window.open(
+          `http://localhost:5000/uploads/${form.image}`,
+          "_blank"
+        );
+      }
+    }}
+  >
+    📸 {fileName} (click to preview)
+  </p>
+)}
+
+
+            {uploading && (
+              <div style={{ width: "100%" }}>
+                <div style={{
+                  width: `${progress}%`,
+                  height: "8px",
+                  background: "#9d4edd"
+                }} />
+                <p className="subtitle">{progress}% uploading...</p>
+              </div>
+            )}
+
 
             {form.lat && (
               <p className="subtitle">
-                Location captured 
+                📍 {form.lat.toFixed(4)}, {form.lng.toFixed(4)}
               </p>
             )}
 
             <button
               className="btn"
               onClick={handleSubmit}
-              disabled={!form.lat}
+              disabled={uploading}
             >
-              Submit Report
+              {uploading ? "Uploading..." : "Submit Report"}
             </button>
 
           </div>

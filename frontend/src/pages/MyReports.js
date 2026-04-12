@@ -6,9 +6,9 @@ function MyReports() {
 
   useEffect(() => {
     fetch("http://localhost:5000/cases")
-      .then((res) => res.json())
-      .then((data) => setCases(data))
-      .catch((err) => console.error(err));
+      .then(res => res.json())
+      .then(data => setCases(data))
+      .catch(err => console.error(err));
   }, []);
 
   return (
@@ -17,31 +17,44 @@ function MyReports() {
         <div className="content-card">
           <div className="inner-box visible">
 
-            <h1>My Reports</h1>
-            <p className="subtitle">
-              All reported stray cases
-            </p>
+            <h1>📋 My Reports</h1>
+            <p className="subtitle">All reported cases</p>
 
             {cases.length === 0 ? (
               <p className="subtitle">No reports yet</p>
             ) : (
-              <div style={{ width: "100%", marginTop: "10px" }}>
+              <div style={{ width: "100%" }}>
+
                 {cases.map((c, index) => (
                   <div key={index} className="report-card">
 
-                    <h3>{c.animal || "Animal"}</h3>
+                    <h3>{c.animal}</h3>
                     <p>{c.description}</p>
 
-                    <p style={{ fontSize: "0.9rem", color: "#aaa" }}>
-                       {c.lat}, {c.lng}
+                    <p style={{ color: "#aaa", fontSize: "0.9rem" }}>
+                      📍 {c.lat}, {c.lng}
                     </p>
 
-                    <span className="status">
-                      {c.status}
-                    </span>
+                    {/* IMAGE FILE NAME (CLICKABLE) */}
+                    {c.image && (
+  <p
+    className="file-link"
+    onClick={() =>
+      window.open(
+        `http://localhost:5000/uploads/${c.image}`,
+        "_blank"
+      )
+    }
+  >
+    📸 {c.image} (click to view)
+  </p>
+)}
+
+                    <span className="status">{c.status}</span>
 
                   </div>
                 ))}
+
               </div>
             )}
 
