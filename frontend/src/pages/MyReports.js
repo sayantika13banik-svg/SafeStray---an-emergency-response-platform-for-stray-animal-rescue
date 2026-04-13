@@ -17,7 +17,7 @@ function MyReports() {
         <div className="content-card">
           <div className="inner-box visible">
 
-            <h1>📋 My Reports</h1>
+            <h1>My Reports</h1>
             <p className="subtitle">All reported cases</p>
 
             {cases.length === 0 ? (
