@@ -44,7 +44,7 @@ function Report() {
     data.append("image", file);
 
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", "http://localhost:5000/upload"); 
+    xhr.open("POST", "https://safestray-backend.onrender.com/upload"); 
 
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable) {
@@ -90,7 +90,7 @@ function Report() {
     }
 
     try {
-      await fetch("http://localhost:5000/report", {
+      await fetch("https://safestray-backend.onrender.com/report", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -148,7 +148,7 @@ function Report() {
     onClick={() => {
       if (form.image) {
         window.open(
-          `http://localhost:5000/uploads/${form.image}`,
+          `https://safestray-backend.onrender.com/uploads/${form.image}`,
           "_blank"
         );
       }

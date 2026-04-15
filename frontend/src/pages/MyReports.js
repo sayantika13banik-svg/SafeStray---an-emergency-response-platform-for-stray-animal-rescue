@@ -5,7 +5,7 @@ function MyReports() {
   const [cases, setCases] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/cases")
+    fetch("https://safestray-backend.onrender.com/cases")
       .then(res => res.json())
       .then(data => setCases(data))
       .catch(err => console.error(err));
@@ -41,7 +41,7 @@ function MyReports() {
     className="file-link"
     onClick={() =>
       window.open(
-        `http://localhost:5000/uploads/${c.image}`,
+        `https://safestray-backend.onrender.com/uploads/${c.image}`,
         "_blank"
       )
     }

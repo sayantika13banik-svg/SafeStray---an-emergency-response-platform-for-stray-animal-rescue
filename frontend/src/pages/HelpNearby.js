@@ -47,7 +47,7 @@ function HelpNearby() {
 
 
   useEffect(() => {
-    fetch("http://localhost:5000/cases")
+    fetch("https://safestray-backend.onrender.com/cases")
       .then(res => res.json())
       .then(data => setCases(data))
       .catch(err => console.error(err));
