@@ -1,8 +1,8 @@
-# 🐾 SafeStray – Animal Rescue Alert System
+# SafeStray – Animal Rescue Alert System
 
 SafeStray is a web-based platform that enables users to report injured or stray animals in real-time, helping NGOs and volunteers respond quickly and efficiently.
 
-🌐 **Live Demo:** [https://safe-stray-an-emergency-response-pl.vercel.app]
+**Live Demo:** [https://safe-stray-an-emergency-response-pl.vercel.app]
 ---
 
 ## Features
@@ -12,7 +12,7 @@ SafeStray is a web-based platform that enables users to report injured or stray 
 - Interactive map to view nearby reported cases
 - User-friendly interface
 
----
+
 
 ## Tech Stack
 - Frontend: HTML, CSS, JavaScript, React
@@ -20,6 +20,33 @@ SafeStray is a web-based platform that enables users to report injured or stray 
 - Database: MySQL / MongoDB (update as per your project)
 - Tools: Git, GitHub, VS Code
 
+
+## How It Works
+1. User submits a report with location and image  
+2. Data is sent to the backend via API  
+3. Backend stores the report in the database  
+4. Reports are displayed on the map for nearby visibility
+
+## Installation
+
+### Clone repo
+git clone https://github.com/sayantika13banik-svg/safestray.git
+
+### Backend
+cd backend
+
+npm install
+
+npm start
+
+### Frontend
+cd frontend
+
+npm install
+
+npm start
+
+---
 ## Screenshots
 
 ### Home Page
@@ -33,8 +60,14 @@ SafeStray is a web-based platform that enables users to report injured or stray 
 
 ---
 
-## 💡 Future Enhancements
-- 🤖 AI-based animal condition analysis  
-- 🔔 Notification system for volunteers/NGOs  
-- 📱 Mobile application version  
-- 🗺️ Live rescue tracking  
+## Future Enhancements
+- AI-based animal condition analysis  
+- Notification system for volunteers/NGOs  
+- Mobile application version  
+- Live rescue tracking  
+
+
+## Author
+**Sayantika Banik**  
+- GitHub: https://github.com/sayantika13banik-svg
+- LinkedIn: https://linkedin.com/in/sayantikabanik
